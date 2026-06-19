@@ -12,12 +12,14 @@ class CoaRecord extends Model
         'purity_hplc', 'appearance', 'solubility', 'moisture_content', 'ph',
         'endotoxin', 'sterility', 'identity_ms', 'identity_hplc',
         'storage_conditions', 'grade', 'quantity', 'recipient_name', 'recipient_email', 'notes',
+        'analysis_start_date',
     ];
 
     protected $casts = [
-        'manufacture_date' => 'date',
-        'expiry_date' => 'date',
-        'analysis_date' => 'date',
+        'manufacture_date'      => 'date',
+        'expiry_date'          => 'date',
+        'analysis_date'        => 'date',
+        'analysis_start_date'  => 'date',
         'purity_hplc' => 'decimal:2',
         'molecular_weight' => 'decimal:4',
     ];

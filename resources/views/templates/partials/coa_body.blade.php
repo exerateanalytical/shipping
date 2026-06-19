@@ -292,7 +292,16 @@
                 @endif
                 <tr><td>Manufacture Date</td><td>{{ $coa->manufacture_date->format('d M Y') }}</td></tr>
                 <tr><td>Expiry Date</td><td>{{ $coa->expiry_date->format('d M Y') }}</td></tr>
-                <tr><td>Analysis Date</td><td>{{ $coa->analysis_date->format('d M Y') }}</td></tr>
+                <tr>
+                    <td>Analysis Period</td>
+                    <td>
+                        @if($coa->analysis_start_date)
+                            {{ $coa->analysis_start_date->format('d M Y') }} — {{ $coa->analysis_date->format('d M Y') }}
+                        @else
+                            {{ $coa->analysis_date->format('d M Y') }}
+                        @endif
+                    </td>
+                </tr>
             </table>
         </div>
     </div>
@@ -391,6 +400,18 @@
                     <td>Solubility</td>
                     <td>Soluble in water</td>
                     <td>{{ $coa->solubility }}</td>
+                    <td><span class="pass-badge">PASS</span></td>
+                </tr>
+                <tr>
+                    <td>Analysis Period</td>
+                    <td>Completed within batch cycle</td>
+                    <td>
+                        @if($coa->analysis_start_date)
+                            {{ $coa->analysis_start_date->format('d M Y') }} – {{ $coa->analysis_date->format('d M Y') }}
+                        @else
+                            {{ $coa->analysis_date->format('d M Y') }}
+                        @endif
+                    </td>
                     <td><span class="pass-badge">PASS</span></td>
                 </tr>
             </tbody>

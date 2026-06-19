@@ -366,6 +366,17 @@
         </div>
     </div>
 
+    {{-- SENSITIVE PACKAGE ALERT --}}
+    @if($shipment->is_sensitive)
+    <div style="background:#D40511; color:#fff; padding:6px 12px; display:flex; align-items:center; gap:8px; border-bottom:2px solid #000;">
+        <span style="font-size:14pt; line-height:1;">⚠</span>
+        <div>
+            <span style="font-size:9pt; font-weight:900; letter-spacing:1px; text-transform:uppercase;">SENSITIVE SHIPMENT</span>
+            <span style="font-size:7.5pt; margin-left:10px; opacity:0.9;">Handle with care — Special handling required at all transit points</span>
+        </div>
+    </div>
+    @endif
+
     {{-- SHIPMENT DETAILS BAR --}}
     <div class="dhl-details">
         <div class="dhl-detail-cell">
@@ -384,6 +395,12 @@
             <div class="dhl-detail-label">Ship Date</div>
             <div class="dhl-detail-value" style="font-size:8.5pt;">{{ $shipDateShort }}</div>
         </div>
+        @if($shipment->estimated_arrival)
+        <div class="dhl-detail-cell">
+            <div class="dhl-detail-label">Est. Delivery</div>
+            <div class="dhl-detail-value" style="font-size:8.5pt; color:#D40511;">{{ $shipment->estimated_arrival->format('d/m/Y') }}</div>
+        </div>
+        @endif
     </div>
 
     {{-- SERVICE INDICATORS --}}
@@ -397,8 +414,14 @@
             <div class="dhl-si-value">{{ Str::limit($shipment->content_description, 20) }}</div>
         </div>
         <div class="dhl-service-indicator">
-            <div class="dhl-si-label">Declared Value</div>
-            <div class="dhl-si-value">{{ $shipment->currency }} {{ number_format($shipment->declared_value, 2) }}</div>
+            <div class="dhl-si-label">Shipping Fee</div>
+            <div class="dhl-si-value">
+                @if($shipment->shipping_fee)
+                    {{ $shipment->shipping_fee_currency }} {{ number_format($shipment->shipping_fee, 2) }}
+                @else
+                    —
+                @endif
+            </div>
         </div>
         <div class="dhl-service-indicator">
             <div class="dhl-si-label">Account</div>
@@ -424,6 +447,12 @@
             <label>Payment</label>
             <span>Shipper</span>
         </div>
+        @if($shipment->is_sensitive)
+        <div class="dhl-customs-item">
+            <label>Handling</label>
+            <span style="color:#D40511; font-weight:900;">SENSITIVE</span>
+        </div>
+        @endif
     </div>
 
     {{-- FOOTER --}}
