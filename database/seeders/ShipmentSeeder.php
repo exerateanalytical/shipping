@@ -16,6 +16,7 @@ class ShipmentSeeder extends Seeder
 
         \App\Models\Shipment::create([
             'waybill_number'      => '7251987634',
+            'status'              => 'pending',
             'service_type'        => 'EXPRESS WORLDWIDE',
             'product_code'        => 'P',
             // Shipper
@@ -43,8 +44,12 @@ class ShipmentSeeder extends Seeder
             'dimensions'             => null,
             'pieces'                 => 1,
             'content_description'    => 'Tirzepatide Peptide',
-            'declared_value'         => null,
+            'declared_value'         => 20000.00,
             'currency'               => 'EUR',
+            'goods_value'            => 20000.00,
+            'insurance_fee'          => 2000.00,   // 10% of goods value
+            'insurance_refundable'   => true,
+            'customs_duties'         => 3900.00,
             'shipping_fee'           => 200.00,
             'shipping_fee_currency'  => 'EUR',
             'estimated_arrival'      => '2026-06-27',

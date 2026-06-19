@@ -1,9 +1,30 @@
 @php
-    // Generate a fake barcode visual using CSS bars
-    $waybill = $shipment->waybill_number;
-    $waybillFormatted = chunk_split($waybill, 4, ' ');
-    $shipDate = $shipment->ship_date->format('d M Y');
+    $waybill      = $shipment->waybill_number;
+    $shipDate     = $shipment->ship_date->format('d M Y');
     $shipDateShort = $shipment->ship_date->format('d/m/Y');
+
+    // Telegram-style masked tracking: show first 3 and last 2 chars, mask the middle with •
+    $wLen   = mb_strlen($waybill);
+    $masked = mb_substr($waybill, 0, 3)
+            . str_repeat('•', max(0, $wLen - 5))
+            . mb_substr($waybill, -2);
+
+    // Financial totals
+    $goodsValue    = $shipment->goods_value    ?? 0;
+    $insuranceFee  = $shipment->insurance_fee  ?? 0;
+    $customsDuties = $shipment->customs_duties ?? 0;
+    $shippingFee   = $shipment->shipping_fee   ?? 0;
+    $grandTotal    = $goodsValue + $insuranceFee + $customsDuties + $shippingFee;
+    $feesCurrency  = $shipment->shipping_fee_currency ?? $shipment->currency ?? 'EUR';
+
+    $statusColors = [
+        'pending'    => ['bg' => '#f39c12', 'text' => '#fff'],
+        'in_transit' => ['bg' => '#2980b9', 'text' => '#fff'],
+        'delivered'  => ['bg' => '#27ae60', 'text' => '#fff'],
+        'failed'     => ['bg' => '#c0392b', 'text' => '#fff'],
+    ];
+    $statusLabel = strtoupper(str_replace('_', ' ', $shipment->status ?? 'pending'));
+    $statusColor = $statusColors[$shipment->status ?? 'pending'] ?? $statusColors['pending'];
 @endphp
 <style>
 .dhl-label {
@@ -253,6 +274,92 @@
     border-top: 1px solid #ddd;
     background: #fafafa;
 }
+/* Status badge */
+.dhl-status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 10px;
+    border-bottom: 2px solid #000;
+    background: #f9f9f9;
+}
+.dhl-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 8.5pt;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+.dhl-status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.7;
+    animation: pulse 1.4s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:.7} 50%{opacity:1} }
+/* Tracking masked */
+.dhl-tracking-masked {
+    font-family: 'Courier New', monospace;
+    font-size: 13pt;
+    font-weight: 900;
+    letter-spacing: 4px;
+    color: #000;
+}
+.dhl-tracking-dot {
+    color: #D40511;
+    font-size: 16pt;
+    vertical-align: middle;
+    line-height: 1;
+}
+/* Financial receipt table */
+.dhl-receipt {
+    border-top: 2px solid #000;
+    padding: 0;
+}
+.dhl-receipt-title {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 5px 10px;
+    font-size: 7.5pt;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.dhl-receipt table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8pt;
+}
+.dhl-receipt td {
+    padding: 5px 10px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+.dhl-receipt td:last-child { text-align: right; font-weight: 700; }
+.dhl-receipt .row-sub  td { color: #555; }
+.dhl-receipt .row-ins  td { background: #fffde7; }
+.dhl-receipt .row-ins td:first-child::before { content: '🔒 '; }
+.dhl-receipt .row-customs td { background: #fff3e0; }
+.dhl-receipt .row-total td {
+    background: #1a1a1a;
+    color: #fff;
+    font-weight: 900;
+    font-size: 9pt;
+    border-bottom: none;
+    padding: 7px 10px;
+}
+.dhl-refund-note {
+    font-size: 6.5pt;
+    color: #27ae60;
+    font-style: italic;
+    margin-top: 1px;
+    display: block;
+}
 </style>
 
 <div class="dhl-label">
@@ -271,11 +378,42 @@
         </div>
     </div>
 
+    {{-- STATUS BAR --}}
+    <div class="dhl-status-bar">
+        <div>
+            <span style="font-size:6.5pt; color:#888; text-transform:uppercase; letter-spacing:0.5px;">Shipment Status</span><br>
+            <span class="dhl-status-badge" style="background:{{ $statusColor['bg'] }}; color:{{ $statusColor['text'] }}; margin-top:3px;">
+                <span class="dhl-status-dot" style="background:{{ $statusColor['text'] }};"></span>
+                {{ $statusLabel }}
+            </span>
+        </div>
+        <div style="text-align:right;">
+            <span style="font-size:6.5pt; color:#888; text-transform:uppercase; letter-spacing:0.5px; display:block;">Tracking Number</span>
+            <span class="dhl-tracking-masked">
+                @php
+                    $chars = mb_str_split($masked);
+                @endphp
+                @foreach($chars as $ch)
+                    @if($ch === '•')
+                        <span class="dhl-tracking-dot">•</span>
+                    @else
+                        {{ $ch }}
+                    @endif
+                @endforeach
+            </span>
+            <span style="font-size:6pt; color:#aaa; display:block; margin-top:1px; letter-spacing:0.3px;">Full number revealed upon payment clearance</span>
+        </div>
+    </div>
+
     {{-- WAYBILL BARCODE SECTION --}}
     <div class="dhl-waybill-section">
         <div class="dhl-waybill-left">
-            <div class="dhl-waybill-label">Waybill Number</div>
-            <div class="dhl-waybill-number">{{ wordwrap($waybill, 5, ' ', true) }}</div>
+            <div class="dhl-waybill-label">Waybill / Tracking</div>
+            <div class="dhl-waybill-number" style="letter-spacing:3px;">
+                @foreach(mb_str_split($masked) as $ch)
+                    @if($ch === '•')<span style="color:#D40511; font-size:22pt; vertical-align:middle; line-height:0.8;">•</span>@else{{ $ch }}@endif
+                @endforeach
+            </div>
             <div style="font-size:7pt; color:#555; margin-top:2px;">Ship Date: {{ $shipDate }}</div>
         </div>
         <div style="flex:1; text-align:center;">
@@ -455,6 +593,58 @@
         @endif
     </div>
 
+    {{-- FINANCIAL RECEIPT --}}
+    @if($goodsValue || $insuranceFee || $customsDuties || $shippingFee)
+    <div class="dhl-receipt">
+        <div class="dhl-receipt-title">&#x1F4CB; Shipment Cost Summary &amp; Fees</div>
+        <table>
+            <tr class="row-sub">
+                <td>Goods / Package Value</td>
+                <td style="color:#555; font-size:7pt;">Declared market value</td>
+                <td>{{ $feesCurrency }} {{ number_format($goodsValue, 2) }}</td>
+            </tr>
+            @if($shippingFee)
+            <tr class="row-sub">
+                <td>Shipping Fee</td>
+                <td style="color:#555; font-size:7pt;">DHL Express Worldwide</td>
+                <td>{{ $feesCurrency }} {{ number_format($shippingFee, 2) }}</td>
+            </tr>
+            @endif
+            @if($insuranceFee)
+            <tr class="row-ins">
+                <td>
+                    Insurance Fee
+                    <span style="font-size:6.5pt; font-weight:400; color:#888; display:block;">10% of declared goods value</span>
+                </td>
+                <td style="font-size:7pt; color:#7a6000;">
+                    Covers theft, loss &amp; damage in transit
+                    @if($shipment->insurance_refundable)
+                    <span class="dhl-refund-note">&#x2713; Fully refunded upon successful delivery</span>
+                    @endif
+                </td>
+                <td>{{ $feesCurrency }} {{ number_format($insuranceFee, 2) }}</td>
+            </tr>
+            @endif
+            @if($customsDuties)
+            <tr class="row-customs">
+                <td>
+                    Customs &amp; Import Duties
+                    <span style="font-size:6.5pt; font-weight:400; color:#888; display:block;">Destination country: Portugal (PT)</span>
+                </td>
+                <td style="font-size:7pt; color:#7a4400;">
+                    EU import clearance — payable before release
+                </td>
+                <td>{{ $feesCurrency }} {{ number_format($customsDuties, 2) }}</td>
+            </tr>
+            @endif
+            <tr class="row-total">
+                <td colspan="2">TOTAL AMOUNT DUE</td>
+                <td>{{ $feesCurrency }} {{ number_format($grandTotal, 2) }}</td>
+            </tr>
+        </table>
+    </div>
+    @endif
+
     {{-- FOOTER --}}
     <div class="dhl-footer">
         <div class="dhl-footer-left">
@@ -465,7 +655,11 @@
         </div>
         <div class="dhl-footer-right">
             <div style="font-size:7pt; color:#888;">Waybill generated: {{ now()->format('d M Y H:i') }}</div>
-            <div style="font-size:18pt; font-weight:900; color:#D40511; letter-spacing:1px;">{{ $shipment->waybill_number }}</div>
+            <div style="font-size:18pt; font-weight:900; color:#D40511; letter-spacing:1px;">
+                @foreach(mb_str_split($masked) as $ch)
+                    @if($ch === '•')<span style="color:#aaa; font-size:16pt; vertical-align:middle;">•</span>@else{{ $ch }}@endif
+                @endforeach
+            </div>
             <div style="font-size:6pt; color:#888;">Retain this waybill as your shipment receipt</div>
         </div>
     </div>
