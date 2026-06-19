@@ -287,12 +287,30 @@
                 <tr><td>Mol. Formula</td><td>{{ $coa->molecular_formula }}</td></tr>
                 <tr><td>Mol. Weight</td><td>{{ number_format($coa->molecular_weight, 2) }} g/mol</td></tr>
                 <tr><td>Quantity</td><td>{{ $coa->quantity }}</td></tr>
+                @if($coa->recipient_name)
+                <tr><td>Prepared For</td><td><strong>{{ $coa->recipient_name }}</strong></td></tr>
+                @endif
                 <tr><td>Manufacture Date</td><td>{{ $coa->manufacture_date->format('d M Y') }}</td></tr>
                 <tr><td>Expiry Date</td><td>{{ $coa->expiry_date->format('d M Y') }}</td></tr>
                 <tr><td>Analysis Date</td><td>{{ $coa->analysis_date->format('d M Y') }}</td></tr>
             </table>
         </div>
     </div>
+
+    {{-- ── PREPARED FOR ─────────────────────────────────────── --}}
+    @if($coa->recipient_name)
+    <div style="background:#f0f5fa; border-bottom:2px solid #1a3a5c; padding:10px 30px; display:flex; align-items:center; gap:16px;">
+        <div style="background:#1a3a5c; color:#FFCC00; font-size:7.5pt; font-weight:700; text-transform:uppercase; letter-spacing:1px; padding:4px 10px; border-radius:2px; white-space:nowrap;">
+            Prepared For
+        </div>
+        <div>
+            <span style="font-size:11pt; font-weight:900; color:#1a3a5c;">{{ $coa->recipient_name }}</span>
+            @if($coa->recipient_email)
+            <span style="font-size:8pt; color:#555; margin-left:10px;">{{ $coa->recipient_email }}</span>
+            @endif
+        </div>
+    </div>
+    @endif
 
     {{-- ── PURITY HIGHLIGHT ─────────────────────────────────── --}}
     <div class="coa-section">

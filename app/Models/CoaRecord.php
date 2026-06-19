@@ -11,7 +11,7 @@ class CoaRecord extends Model
         'manufacturer', 'catalog_number', 'manufacture_date', 'expiry_date', 'analysis_date',
         'purity_hplc', 'appearance', 'solubility', 'moisture_content', 'ph',
         'endotoxin', 'sterility', 'identity_ms', 'identity_hplc',
-        'storage_conditions', 'grade', 'quantity', 'notes',
+        'storage_conditions', 'grade', 'quantity', 'recipient_name', 'recipient_email', 'notes',
     ];
 
     protected $casts = [
