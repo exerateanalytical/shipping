@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Shipment extends Model
+{
+    protected $fillable = [
+        'waybill_number', 'service_type', 'product_code',
+        'shipper_name', 'shipper_company', 'shipper_address1', 'shipper_address2',
+        'shipper_city', 'shipper_state', 'shipper_postal', 'shipper_country', 'shipper_phone',
+        'receiver_name', 'receiver_company', 'receiver_address1', 'receiver_address2',
+        'receiver_city', 'receiver_state', 'receiver_postal', 'receiver_country', 'receiver_phone',
+        'weight_kg', 'dimensions', 'pieces', 'content_description', 'declared_value', 'currency',
+        'origin_service_area', 'dest_service_area', 'routing_code', 'ship_date',
+    ];
+
+    protected $casts = [
+        'ship_date' => 'date',
+        'weight_kg' => 'decimal:2',
+        'declared_value' => 'decimal:2',
+    ];
+}

@@ -1,0 +1,41 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class CoaRecordSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        \App\Models\CoaRecord::create([
+            'lot_number'         => 'APX-TZP-2024-061',
+            'product_name'       => 'Tirzepatide',
+            'cas_number'         => '2023788-19-2',
+            'molecular_formula'  => 'C₂₂₅H₃₄₈N₄₈O₆₈',
+            'molecular_weight'   => 4813.4600,
+            'manufacturer'       => 'Apex Laboratories',
+            'catalog_number'     => 'APX-TZP-5MG',
+            'manufacture_date'   => '2024-01-15',
+            'expiry_date'        => '2026-01-14',
+            'analysis_date'      => '2024-01-20',
+            'purity_hplc'        => 99.99,
+            'appearance'         => 'White to off-white lyophilized powder',
+            'solubility'         => 'Soluble in water at 1 mg/mL',
+            'moisture_content'   => '≤ 5.0%',
+            'ph'                 => '6.0 - 7.0',
+            'endotoxin'          => '< 1.0 EU/mg',
+            'sterility'          => 'Sterile – Passes USP <71>',
+            'identity_ms'        => 'Confirmed by LC-MS/MS',
+            'identity_hplc'      => 'Confirmed by RP-HPLC',
+            'storage_conditions' => '-20°C, desiccated, protected from light',
+            'grade'              => 'Research Grade',
+            'quantity'           => '5 mg',
+            'notes'              => 'For research use only. Not for human or veterinary use.',
+        ]);
+    }
+}
