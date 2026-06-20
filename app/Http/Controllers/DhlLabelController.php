@@ -18,7 +18,7 @@ class DhlLabelController extends Controller
     {
         $shipment = Shipment::findOrFail($id);
         $pdf = Pdf::loadView('templates.dhl_label_pdf', compact('shipment'))
-            ->setPaper('a4', 'portrait');
+            ->setPaper([0, 0, 595.28, 841.89], 'portrait');
         return $pdf->download("DHL_Label_{$shipment->waybill_number}.pdf");
     }
 
