@@ -51,7 +51,7 @@
 
     // Real QR code — encodes shipment status message
     $qrText = "DHL EXPRESS\nWaybill: {$waybill}\nStatus: PENDING\nInsurance: PENDING (Refundable on delivery)\nInsurance Fee: EUR " . number_format($insuranceFee, 2) . "\nCustoms Duties: EUR " . number_format($customsDuties, 2) . "\nTotal Fees Due: EUR " . number_format($totalFeesDue, 2);
-    $qrSvg = \SimpleSoftware\QrCode\Facades\QrCode::format('svg')->size(120)->margin(1)->generate($qrText);
+    $qrSvg = (new \SimpleSoftwareIO\QrCode\Generator)->format('svg')->size(120)->margin(1)->generate($qrText);
 @endphp
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
