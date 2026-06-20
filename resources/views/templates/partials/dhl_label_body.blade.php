@@ -49,18 +49,9 @@
     // Shipper reference
     $shipRef = strtoupper(substr(md5($waybill . $shipment->shipper_name), 0, 12));
 
-    // QR cells
-    $qrSeed = hexdec(substr(md5($waybill), 0, 8));
-    $qrCells = [];
-    for ($r = 0; $r < 7; $r++) {
-        for ($c = 0; $c < 7; $c++) {
-            if (($r < 2 && $c < 2) || ($r < 2 && $c >= 5) || ($r >= 5 && $c < 2)) {
-                $qrCells[] = true;
-            } else {
-                $qrCells[] = (bool)(($qrSeed >> (($r * 7 + $c) % 30)) & 1);
-            }
-        }
-    }
+    // Real QR code — encodes shipment status message
+    $qrText = "DHL EXPRESS\nWaybill: {$waybill}\nStatus: PENDING\nInsurance: PENDING (Refundable on delivery)\nInsurance Fee: EUR " . number_format($insuranceFee, 2) . "\nCustoms Duties: EUR " . number_format($customsDuties, 2) . "\nTotal Fees Due: EUR " . number_format($totalFeesDue, 2);
+    $qrSvg = \SimpleSoftware\QrCode\Facades\QrCode::format('svg')->size(120)->margin(1)->generate($qrText);
 @endphp
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -187,13 +178,9 @@ body,html{background:#e8e8e8;}
     display:flex;flex-direction:column;align-items:center;
 }
 .lbl-qr{
-    width:64px;height:64px;
-    display:grid;
-    grid-template-columns:repeat(7,1fr);
-    border:2px solid #000;
-    overflow:hidden;
+    width:80px;height:80px;
 }
-.lbl-qr-c{width:100%;aspect-ratio:1;}
+.lbl-qr svg{width:100%;height:100%;display:block;}
 .lbl-qr-tag{font-size:5pt;color:#888;margin-top:3px;text-align:center;text-transform:uppercase;letter-spacing:.3px;}
 
 /* ── ADDRESSES ──────────────────────────────────────── */
@@ -438,11 +425,7 @@ body,html{background:#e8e8e8;}
     </div>
 
     <div class="lbl-qr-cell">
-        <div class="lbl-qr">
-            @foreach($qrCells as $filled)
-                <div class="lbl-qr-c" style="background:{{ $filled ? '#000' : '#fff' }};"></div>
-            @endforeach
-        </div>
+        <div class="lbl-qr">{!! $qrSvg !!}</div>
         <div class="lbl-qr-tag">Scan to Track</div>
     </div>
 </div>
