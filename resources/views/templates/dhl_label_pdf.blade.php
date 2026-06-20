@@ -36,8 +36,8 @@
     $shipperState  = $shipment->shipper_state  ? ', ' . $shipment->shipper_state  : '';
 
     $qrText = "DHL EXPRESS\nWaybill: {$waybill}\nStatus: PENDING\nInsurance: PENDING (Refundable on delivery)\nInsurance Fee: {$cur} " . number_format($insuranceFee, 2) . "\nCustoms Duties: {$cur} " . number_format($customsDuties, 2) . "\nTotal Fees Due: {$cur} " . number_format($totalFeesDue, 2);
-    $qrPng  = (new \SimpleSoftwareIO\QrCode\Generator)->format('png')->size(90)->margin(1)->generate($qrText);
-    $qrB64  = 'data:image/png;base64,' . base64_encode($qrPng);
+    $qrSvg  = (string)(new \SimpleSoftwareIO\QrCode\Generator)->format('svg')->size(90)->margin(1)->generate($qrText);
+    $qrB64  = 'data:image/svg+xml;base64,' . base64_encode($qrSvg);
 @endphp
 <!DOCTYPE html>
 <html>
