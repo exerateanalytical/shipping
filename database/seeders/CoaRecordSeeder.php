@@ -22,8 +22,8 @@ class CoaRecordSeeder extends Seeder
             'molecular_weight'   => 4813.4600,
             'manufacturer'       => 'Apex Laboratories',
             'catalog_number'     => 'APX-TZP-20MG',
-            'manufacture_date'     => '2024-01-15',
-            'expiry_date'         => '2026-01-14',
+            'manufacture_date'     => '2026-01-15',
+            'expiry_date'         => '2028-01-14',
             'analysis_start_date' => '2026-06-17',
             'analysis_date'       => '2026-06-19',
             'purity_hplc'        => 99.99,
@@ -40,7 +40,7 @@ class CoaRecordSeeder extends Seeder
             'quantity'           => '20 mg',
             'recipient_name'     => 'Joao Silva',
             'recipient_email'    => 'joao.cristovao.silva@proton.me',
-            'notes'              => 'For research use only. Not for human or veterinary use.',
+            'notes'              => 'Consult SDS (Safety Data Sheet) document APX-SDS-TZP-001 before handling.',
         ]);
     }
 }
