@@ -46,12 +46,12 @@ if exist "%WKHTML_TMP%" (
 
 :wkhtml_done
 
-echo [1/6] Installing PHP dependencies...
-composer install --ignore-platform-req=php
+echo [1/6] Copying environment file...
+copy .env.laragon .env >nul
 echo Done.
 
-echo [2/6] Copying environment file...
-copy .env.laragon .env >nul
+echo [2/6] Installing PHP dependencies...
+composer install --ignore-platform-req=php
 echo Done.
 
 echo [3/6] Creating database...
