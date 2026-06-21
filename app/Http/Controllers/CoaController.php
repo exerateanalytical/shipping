@@ -56,7 +56,7 @@ class CoaController extends Controller
     {
         $coa = CoaRecord::findOrFail($id);
         $pdf = Pdf::loadView('templates.coa_pdf', compact('coa'))
-            ->setPaper([0, 0, 563, 842], 'portrait');
+            ->setPaper([0, 0, 595.28, 841.89], 'portrait');
         return $pdf->download("COA_{$coa->product_name}_{$coa->lot_number}.pdf");
     }
 
