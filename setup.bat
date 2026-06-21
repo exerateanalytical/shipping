@@ -15,16 +15,22 @@ if %errorlevel% equ 0 (
     echo   Found in PATH. OK.
     goto :wkhtml_done
 )
-echo   Not found. Downloading wkhtmltopdf...
-powershell -Command "& { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox-0.12.6.1-3.msvc2019-win64.exe' -OutFile '%TEMP%\wkhtmltox.exe' -UseBasicParsing }"
-echo   Installing silently (this may take a moment)...
-"%TEMP%\wkhtmltox.exe" /S
-if %errorlevel% neq 0 (
-    echo   Install failed. Try running setup.bat as Administrator.
-    pause
-    exit /b 1
+echo   Not found. Attempting download...
+powershell -Command "& { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox-0.12.6.1-3.msvc2019-win64.exe' -OutFile '%TEMP%\wkhtmltox.exe' -UseBasicParsing }" 2>nul
+if exist "%TEMP%\wkhtmltox.exe" (
+    echo   Installing silently...
+    "%TEMP%\wkhtmltox.exe" /S
+    echo   wkhtmltopdf installed. OK.
+) else (
+    echo.
+    echo   *** Auto-download failed. Install manually: ***
+    echo   1. Open in browser: https://wkhtmltopdf.org/downloads.html
+    echo   2. Download Windows 64-bit installer
+    echo   3. Install it, then re-run setup.bat
+    echo.
+    echo   Continuing setup without wkhtmltopdf - PDF download will not work until installed.
+    echo.
 )
-echo   wkhtmltopdf installed. OK.
 
 :wkhtml_done
 
