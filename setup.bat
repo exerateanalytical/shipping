@@ -16,19 +16,31 @@ if %errorlevel% equ 0 (
     goto :wkhtml_done
 )
 echo   Not found. Attempting download...
-powershell -Command "& { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox-0.12.6.1-3.msvc2019-win64.exe' -OutFile '%TEMP%\wkhtmltox.exe' -UseBasicParsing }" 2>nul
-if exist "%TEMP%\wkhtmltox.exe" (
+set WKHTML_URL=https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox-0.12.6.1-3.msvc2019-win64.exe
+set WKHTML_TMP=%TEMP%\wkhtmltox.exe
+
+powershell -Command "& { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri '%WKHTML_URL%' -OutFile '%WKHTML_TMP%' -UseBasicParsing }" 2>nul
+
+if not exist "%WKHTML_TMP%" (
+    certutil -urlcache -split -f "%WKHTML_URL%" "%WKHTML_TMP%" >nul 2>&1
+)
+
+if not exist "%WKHTML_TMP%" (
+    bitsadmin /transfer wkhtmltopdf "%WKHTML_URL%" "%WKHTML_TMP%" >nul 2>&1
+)
+
+if exist "%WKHTML_TMP%" (
     echo   Installing silently...
-    "%TEMP%\wkhtmltox.exe" /S
+    "%WKHTML_TMP%" /S
     echo   wkhtmltopdf installed. OK.
 ) else (
     echo.
     echo   *** Auto-download failed. Install manually: ***
-    echo   1. Open in browser: https://wkhtmltopdf.org/downloads.html
-    echo   2. Download Windows 64-bit installer
-    echo   3. Install it, then re-run setup.bat
+    echo   1. Open Chrome/Edge and go to: https://wkhtmltopdf.org/downloads.html
+    echo   2. Download Windows 64-bit installer and install it
+    echo   3. Re-run setup.bat
     echo.
-    echo   Continuing setup without wkhtmltopdf - PDF download will not work until installed.
+    echo   Continuing setup - PDF download will not work until wkhtmltopdf is installed.
     echo.
 )
 
