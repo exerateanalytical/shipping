@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shipment;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\Snappy\Facades\SnappyPdf;
 use Illuminate\Http\Request;
 
 class DhlLabelController extends Controller
@@ -59,8 +59,13 @@ class DhlLabelController extends Controller
     public function download($id)
     {
         $shipment = Shipment::findOrFail($id);
-        $pdf = Pdf::loadView('templates.dhl_label_pdf', compact('shipment'))
-            ->setPaper([0, 0, 595.28, 841.89], 'portrait');
+        $pdf = SnappyPdf::loadView('templates.dhl_label_print', compact('shipment'))
+            ->setOption('page-size', 'A4')
+            ->setOption('margin-top', '0')
+            ->setOption('margin-right', '0')
+            ->setOption('margin-bottom', '0')
+            ->setOption('margin-left', '0')
+            ->setOption('enable-local-file-access', true);
         return $pdf->download("DHL_Label_{$shipment->waybill_number}.pdf");
     }
 

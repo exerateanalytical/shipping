@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CoaRecord;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\Snappy\Facades\SnappyPdf;
 use Illuminate\Http\Request;
 
 class CoaController extends Controller
@@ -55,8 +55,13 @@ class CoaController extends Controller
     public function download($id)
     {
         $coa = CoaRecord::findOrFail($id);
-        $pdf = Pdf::loadView('templates.coa_pdf', compact('coa'))
-            ->setPaper([0, 0, 595.28, 841.89], 'portrait');
+        $pdf = SnappyPdf::loadView('templates.coa_print', compact('coa'))
+            ->setOption('page-size', 'A4')
+            ->setOption('margin-top', '0')
+            ->setOption('margin-right', '0')
+            ->setOption('margin-bottom', '0')
+            ->setOption('margin-left', '0')
+            ->setOption('enable-local-file-access', true);
         return $pdf->download("COA_{$coa->product_name}_{$coa->lot_number}.pdf");
     }
 
