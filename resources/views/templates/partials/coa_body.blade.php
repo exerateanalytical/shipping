@@ -11,6 +11,10 @@
     $mhPlus  = '4814.5';
     $mhDbl   = '2407.8';
     $mhTrip  = '1605.5';
+
+    // QR code — encodes verification URL / COA details
+    $qrText = "APEX LABORATORIES\nCertificate of Analysis\nProduct: {$coa->product_name}\nLot: {$coa->lot_number}\nPurity: {$purity}%\nAnalysis Date: {$coa->analysis_date}\nDocument: {$verifyCode}\nVerify at: apexlaboratories.com/verify/{$verifyCode}";
+    $qrSvg  = (new \SimpleSoftwareIO\QrCode\Generator)->format('svg')->size(100)->margin(1)->generate($qrText);
 @endphp
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -239,9 +243,15 @@ body,html{background:#e8e8e8;}
             <div class="lab-sub">A n a l y t i c a l &nbsp; S e r v i c e s &nbsp; L a b o r a t o r y</div>
         </div>
     </div>
-    <div class="hdr-right">
-        <div class="doc-title">Certificate of Analysis</div>
-        <div class="doc-ref">Document {{ $verifyCode }}</div>
+    <div class="hdr-right" style="display:flex;align-items:center;gap:16px;">
+        <div>
+            <div class="doc-title">Certificate of Analysis</div>
+            <div class="doc-ref">Document {{ $verifyCode }}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;">
+            <div style="width:80px;height:80px;">{!! $qrSvg !!}</div>
+            <div style="font-size:5.5pt;color:#9aacbb;margin-top:3px;text-align:center;text-transform:uppercase;letter-spacing:.5px;">Scan to Verify</div>
+        </div>
     </div>
 </div>
 <div class="hdr-rule"></div>
