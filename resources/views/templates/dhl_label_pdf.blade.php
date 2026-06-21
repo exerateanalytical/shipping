@@ -41,9 +41,9 @@
 
     // Masked chars rendered as bullet spans for PDF
     $maskedChars = mb_str_split($masked);
-    $maskedBc = '';   // barcode style
-    $maskedWb = '';   // waybill number style
-    $maskedFt = '';   // footer style
+    $maskedBc = '';
+    $maskedWb = '';
+    $maskedFt = '';
     foreach ($maskedChars as $ch) {
         if ($ch === '•') {
             $maskedBc .= '<span style="color:#D40511;font-size:9pt;vertical-align:middle;line-height:.9;">&#8226;</span>';
@@ -69,6 +69,7 @@ td { vertical-align:top; }
 </style>
 </head>
 <body>
+{{-- Outer table: fixed 3-column structure --}}
 <table style="width:595pt; border:1pt solid #999; border-collapse:collapse;">
 
 {{-- ▌ HEADER --}}
@@ -163,157 +164,173 @@ td { vertical-align:top; }
 </tr>
 @endif
 
-{{-- ▌ DETAILS BAR --}}
+{{-- ▌ DETAILS BAR — inner 5-column table inside colspan=3 --}}
 <tr style="border-bottom:1.5pt solid #000;">
-    <td style="padding:5pt 9pt; border-right:1pt solid #ccc; vertical-align:middle;">
-        <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:2pt;">Gross Weight</div>
-        <div style="font-size:8.5pt; font-weight:bold;">{{ $weightStr }}</div>
-        <div style="font-size:5.5pt; color:#999; margin-top:1pt;">{{ $weightLbStr }}</div>
+    <td colspan="3" style="padding:0;">
+        <table style="width:100%; border-collapse:collapse;">
+            <tr>
+                <td style="width:20%; padding:5pt 9pt; border-right:1pt solid #ccc; vertical-align:middle;">
+                    <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:2pt;">Gross Weight</div>
+                    <div style="font-size:8.5pt; font-weight:bold;">{{ $weightStr }}</div>
+                    <div style="font-size:5.5pt; color:#999; margin-top:1pt;">{{ $weightLbStr }}</div>
+                </td>
+                <td style="width:20%; padding:5pt 9pt; border-right:1pt solid #ccc; vertical-align:middle;">
+                    <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:2pt;">Dimensions</div>
+                    <div style="font-size:7.5pt; font-weight:bold;">{{ $shipment->dimensions ?? 'N/A' }}</div>
+                </td>
+                <td style="width:20%; padding:5pt 9pt; border-right:1pt solid #ccc; vertical-align:middle;">
+                    <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:2pt;">Pieces</div>
+                    <div style="font-size:8.5pt; font-weight:bold;">{{ $shipment->pieces }} / 1</div>
+                </td>
+                <td style="width:20%; padding:5pt 9pt; border-right:1pt solid #ccc; vertical-align:middle;">
+                    <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:2pt;">Ship Date</div>
+                    <div style="font-size:8pt; font-weight:bold;">{{ $shipDateShort }}</div>
+                </td>
+                <td style="width:20%; padding:5pt 9pt; vertical-align:middle;">
+                    <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:2pt;">Est. Delivery</div>
+                    @if($shipment->estimated_arrival)
+                    <div style="font-size:8pt; font-weight:bold; color:#D40511;">{{ $shipment->estimated_arrival->format('d/m/Y') }}</div>
+                    @else
+                    <div style="font-size:8pt; font-weight:bold;">N/A</div>
+                    @endif
+                </td>
+            </tr>
+        </table>
     </td>
-    <td style="padding:5pt 9pt; border-right:1pt solid #ccc; vertical-align:middle;">
-        <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:2pt;">Dimensions</div>
-        <div style="font-size:7.5pt; font-weight:bold;">{{ $shipment->dimensions ?? 'N/A' }}</div>
-    </td>
-    <td style="padding:5pt 9pt; border-right:1pt solid #ccc; vertical-align:middle;">
-        <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:2pt;">Pieces</div>
-        <div style="font-size:8.5pt; font-weight:bold;">{{ $shipment->pieces }} / 1</div>
-    </td>
-    <td style="padding:5pt 9pt; border-right:1pt solid #ccc; vertical-align:middle;">
-        <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:2pt;">Ship Date</div>
-        <div style="font-size:8pt; font-weight:bold;">{{ $shipDateShort }}</div>
-    </td>
-    @if($shipment->estimated_arrival)
-    <td style="padding:5pt 9pt; vertical-align:middle;">
-        <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:2pt;">Est. Delivery</div>
-        <div style="font-size:8pt; font-weight:bold; color:#D40511;">{{ $shipment->estimated_arrival->format('d/m/Y') }}</div>
-    </td>
-    @endif
 </tr>
 
-{{-- ▌ SERVICE ROW --}}
+{{-- ▌ SERVICE ROW — inner 5-column table --}}
 <tr style="border-bottom:1.5pt solid #000; background:#f2f2f2;">
-    <td style="padding:4pt 9pt; border-right:1pt solid #ccc; text-align:center; vertical-align:middle;">
-        <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt;">Service</div>
-        <div style="font-size:8pt; font-weight:bold; margin-top:1pt;">EXPRESS WW</div>
-    </td>
-    <td style="padding:4pt 9pt; border-right:1pt solid #ccc; text-align:center; vertical-align:middle;">
-        <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt;">Payor</div>
-        <div style="font-size:8pt; font-weight:bold; margin-top:1pt;">Shipper</div>
-    </td>
-    <td style="padding:4pt 9pt; border-right:1pt solid #ccc; text-align:center; vertical-align:middle;">
-        <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt;">Incoterms</div>
-        <div style="font-size:8pt; font-weight:bold; margin-top:1pt;">DAP</div>
-    </td>
-    <td style="padding:4pt 9pt; border-right:1pt solid #ccc; text-align:center; vertical-align:middle;">
-        <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt;">DHL Account</div>
-        <div style="font-size:7.5pt; font-weight:bold; margin-top:1pt; font-family:'Courier New',monospace;">{{ $acctNo }}</div>
-    </td>
-    <td style="padding:4pt 9pt; text-align:center; vertical-align:middle;">
-        <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt;">Shipper Ref.</div>
-        <div style="font-size:6.5pt; font-weight:bold; margin-top:1pt; font-family:'Courier New',monospace;">{{ $shipRef }}</div>
+    <td colspan="3" style="padding:0; background:#f2f2f2;">
+        <table style="width:100%; border-collapse:collapse; background:#f2f2f2;">
+            <tr>
+                <td style="width:20%; padding:4pt 9pt; border-right:1pt solid #ccc; text-align:center; vertical-align:middle;">
+                    <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt;">Service</div>
+                    <div style="font-size:8pt; font-weight:bold; margin-top:1pt;">EXPRESS WW</div>
+                </td>
+                <td style="width:20%; padding:4pt 9pt; border-right:1pt solid #ccc; text-align:center; vertical-align:middle;">
+                    <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt;">Payor</div>
+                    <div style="font-size:8pt; font-weight:bold; margin-top:1pt;">Shipper</div>
+                </td>
+                <td style="width:20%; padding:4pt 9pt; border-right:1pt solid #ccc; text-align:center; vertical-align:middle;">
+                    <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt;">Incoterms</div>
+                    <div style="font-size:8pt; font-weight:bold; margin-top:1pt;">DAP</div>
+                </td>
+                <td style="width:20%; padding:4pt 9pt; border-right:1pt solid #ccc; text-align:center; vertical-align:middle;">
+                    <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt;">DHL Account</div>
+                    <div style="font-size:7.5pt; font-weight:bold; margin-top:1pt; font-family:'Courier New',monospace;">{{ $acctNo }}</div>
+                </td>
+                <td style="width:20%; padding:4pt 9pt; text-align:center; vertical-align:middle;">
+                    <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt;">Shipper Ref.</div>
+                    <div style="font-size:6.5pt; font-weight:bold; margin-top:1pt; font-family:'Courier New',monospace;">{{ $shipRef }}</div>
+                </td>
+            </tr>
+        </table>
     </td>
 </tr>
 
-{{-- ▌ CUSTOMS --}}
+{{-- ▌ CUSTOMS — inner 5-column table --}}
 <tr style="border-bottom:1.5pt solid #000;">
-    <td style="padding:5pt 9pt; border-right:1pt solid #ccc; vertical-align:middle;">
-        <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:1pt;">Content Description</div>
-        <div style="font-weight:bold; font-size:7.5pt;">{{ $shipment->content_description }}</div>
-    </td>
-    <td style="padding:5pt 9pt; border-right:1pt solid #ccc; vertical-align:middle;">
-        <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:1pt;">HS Code</div>
-        <div style="font-weight:bold; font-size:7.5pt;">2937.19</div>
-    </td>
-    <td style="padding:5pt 9pt; border-right:1pt solid #ccc; vertical-align:middle;">
-        <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:1pt;">Currency</div>
-        <div style="font-weight:bold; font-size:7.5pt;">{{ $cur }}</div>
-    </td>
-    <td style="padding:5pt 9pt; border-right:1pt solid #ccc; vertical-align:middle;">
-        <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:1pt;">Declared Customs Value</div>
-        <div style="font-weight:bold; font-size:7.5pt;">{{ $cur }} {{ $goodsValue > 0 ? number_format($goodsValue,2) : 'N/A' }}</div>
-    </td>
-    <td style="padding:5pt 9pt; vertical-align:middle;">
-        <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:1pt;">Country of Origin</div>
-        <div style="font-weight:bold; font-size:7.5pt;">{{ $shipment->shipper_country }}</div>
+    <td colspan="3" style="padding:0;">
+        <table style="width:100%; border-collapse:collapse;">
+            <tr>
+                <td style="width:22%; padding:5pt 9pt; border-right:1pt solid #ccc; vertical-align:middle;">
+                    <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:1pt;">Content Description</div>
+                    <div style="font-weight:bold; font-size:7.5pt;">{{ $shipment->content_description }}</div>
+                </td>
+                <td style="width:14%; padding:5pt 9pt; border-right:1pt solid #ccc; vertical-align:middle;">
+                    <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:1pt;">HS Code</div>
+                    <div style="font-weight:bold; font-size:7.5pt;">2937.19</div>
+                </td>
+                <td style="width:14%; padding:5pt 9pt; border-right:1pt solid #ccc; vertical-align:middle;">
+                    <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:1pt;">Currency</div>
+                    <div style="font-weight:bold; font-size:7.5pt;">{{ $cur }}</div>
+                </td>
+                <td style="width:28%; padding:5pt 9pt; border-right:1pt solid #ccc; vertical-align:middle;">
+                    <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:1pt;">Declared Customs Value</div>
+                    <div style="font-weight:bold; font-size:7.5pt;">{{ $cur }} {{ $goodsValue > 0 ? number_format($goodsValue,2) : 'N/A' }}</div>
+                </td>
+                <td style="width:22%; padding:5pt 9pt; vertical-align:middle;">
+                    <div style="font-size:5pt; text-transform:uppercase; color:#888; letter-spacing:.3pt; margin-bottom:1pt;">Country of Origin</div>
+                    <div style="font-weight:bold; font-size:7.5pt;">{{ $shipment->shipper_country }}</div>
+                </td>
+            </tr>
+        </table>
     </td>
 </tr>
 
-{{-- ▌ CHARGES HEADER --}}
+{{-- ▌ CHARGES — inner 2-column table (label | amount) --}}
 @if($goodsValue || $totalFeesDue)
 <tr>
-    <td colspan="5" style="background:#1a1a1a; color:#fff; padding:4pt 12pt; font-size:6.5pt; font-weight:bold; text-transform:uppercase; letter-spacing:1.5pt; border-bottom:1pt solid #000; vertical-align:middle;">
+    <td colspan="3" style="background:#1a1a1a; color:#fff; padding:4pt 12pt; font-size:6.5pt; font-weight:bold; text-transform:uppercase; letter-spacing:1.5pt; border-bottom:1pt solid #000; vertical-align:middle;">
         Charges &amp; Payment Summary
         <span style="font-size:5.5pt; font-weight:normal; color:#aaa; letter-spacing:0; float:right;">All amounts due before release. Contact DHL for payment.</span>
     </td>
 </tr>
-
-{{-- Goods value --}}
-@if($goodsValue)
-<tr style="border-bottom:1pt solid #e8e8e8;">
-    <td colspan="4" style="padding:5pt 12pt; color:#888; font-size:7.5pt; vertical-align:middle;">
-        Declared Goods Value
-        <span style="font-size:5.5pt; color:#999; display:block; margin-top:1pt;">For customs declaration only — not a DHL charge</span>
-    </td>
-    <td style="padding:5pt 12pt; text-align:right; font-weight:bold; font-family:'Courier New',monospace; font-size:7.5pt; color:#666; vertical-align:middle;">
-        {{ $cur }}&nbsp;{{ number_format($goodsValue,2) }}
-    </td>
-</tr>
-@endif
-
-{{-- Shipping fee --}}
-@if($shippingFee)
-<tr style="border-bottom:1pt solid #e8e8e8;">
-    <td colspan="4" style="padding:5pt 12pt; font-size:7.5pt; vertical-align:middle;">
-        DHL Express Freight Charge
-        <span style="font-size:5.5pt; color:#999; display:block; margin-top:1pt;">{{ $shipment->origin_service_area }} &rarr; {{ $shipment->dest_service_area }} &nbsp;&middot;&nbsp; {{ $shipment->service_type }}</span>
-    </td>
-    <td style="padding:5pt 12pt; text-align:right; font-weight:bold; font-family:'Courier New',monospace; font-size:7.5pt; vertical-align:middle;">
-        {{ $cur }}&nbsp;{{ number_format($shippingFee,2) }}
-    </td>
-</tr>
-@endif
-
-{{-- Insurance --}}
-@if($insuranceFee)
-<tr style="border-bottom:1pt solid #e8e8e8;">
-    <td colspan="4" style="padding:5pt 12pt; font-size:7.5pt; vertical-align:middle;">
-        Shipment Insurance (10% of declared value)
-        <span style="font-size:5.5pt; color:#999; display:block; margin-top:1pt;">Covers loss, theft &amp; damage in transit</span>
-        @if($shipment->insurance_refundable)<span style="font-size:6pt; color:#1a7a3a; display:block; margin-top:1pt; font-weight:600;">Refundable in full upon confirmed delivery</span>@endif
-    </td>
-    <td style="padding:5pt 12pt; text-align:right; font-weight:bold; font-family:'Courier New',monospace; font-size:7.5pt; vertical-align:middle;">
-        {{ $cur }}&nbsp;{{ number_format($insuranceFee,2) }}
-    </td>
-</tr>
-@endif
-
-{{-- Customs duties --}}
-@if($customsDuties)
-<tr style="border-bottom:1pt solid #e8e8e8;">
-    <td colspan="4" style="padding:5pt 12pt; font-size:7.5pt; vertical-align:middle;">
-        Customs &amp; Import Duties
-        <span style="font-size:5.5pt; color:#999; display:block; margin-top:1pt;">EU import clearance &nbsp;&middot;&nbsp; Destination: {{ $shipment->receiver_country }} &nbsp;&middot;&nbsp; Payable before release</span>
-    </td>
-    <td style="padding:5pt 12pt; text-align:right; font-weight:bold; font-family:'Courier New',monospace; font-size:7.5pt; vertical-align:middle;">
-        {{ $cur }}&nbsp;{{ number_format($customsDuties,2) }}
-    </td>
-</tr>
-@endif
-
-{{-- Total --}}
 <tr>
-    <td colspan="4" style="background:#1a1a1a; color:#FFCC00; font-size:8pt; font-weight:bold; padding:7pt 12pt; letter-spacing:1pt; text-transform:uppercase; vertical-align:middle;">
-        Total Amount Due
-    </td>
-    <td style="background:#1a1a1a; color:#FFCC00; font-size:10pt; font-weight:bold; padding:7pt 12pt; text-align:right; font-family:'Courier New',monospace; vertical-align:middle; letter-spacing:.5pt;">
-        {{ $cur }}&nbsp;{{ number_format($totalFeesDue,2) }}
+    <td colspan="3" style="padding:0;">
+        <table style="width:100%; border-collapse:collapse;">
+            @if($goodsValue)
+            <tr style="border-bottom:1pt solid #e8e8e8;">
+                <td style="padding:5pt 12pt; color:#888; font-size:7.5pt; vertical-align:middle;">
+                    Declared Goods Value
+                    <span style="font-size:5.5pt; color:#999; display:block; margin-top:1pt;">For customs declaration only — not a DHL charge</span>
+                </td>
+                <td style="width:100pt; padding:5pt 12pt; text-align:right; font-weight:bold; font-family:'Courier New',monospace; font-size:7.5pt; color:#666; vertical-align:middle; white-space:nowrap;">
+                    {{ $cur }}&nbsp;{{ number_format($goodsValue,2) }}
+                </td>
+            </tr>
+            @endif
+            @if($shippingFee)
+            <tr style="border-bottom:1pt solid #e8e8e8;">
+                <td style="padding:5pt 12pt; font-size:7.5pt; vertical-align:middle;">
+                    DHL Express Freight Charge
+                    <span style="font-size:5.5pt; color:#999; display:block; margin-top:1pt;">{{ $shipment->origin_service_area }} &rarr; {{ $shipment->dest_service_area }} &nbsp;&middot;&nbsp; {{ $shipment->service_type }}</span>
+                </td>
+                <td style="width:100pt; padding:5pt 12pt; text-align:right; font-weight:bold; font-family:'Courier New',monospace; font-size:7.5pt; vertical-align:middle; white-space:nowrap;">
+                    {{ $cur }}&nbsp;{{ number_format($shippingFee,2) }}
+                </td>
+            </tr>
+            @endif
+            @if($insuranceFee)
+            <tr style="border-bottom:1pt solid #e8e8e8;">
+                <td style="padding:5pt 12pt; font-size:7.5pt; vertical-align:middle;">
+                    Shipment Insurance (10% of declared value)
+                    <span style="font-size:5.5pt; color:#999; display:block; margin-top:1pt;">Covers loss, theft &amp; damage in transit</span>
+                    @if($shipment->insurance_refundable)<span style="font-size:6pt; color:#1a7a3a; display:block; margin-top:1pt; font-weight:600;">Refundable in full upon confirmed delivery</span>@endif
+                </td>
+                <td style="width:100pt; padding:5pt 12pt; text-align:right; font-weight:bold; font-family:'Courier New',monospace; font-size:7.5pt; vertical-align:middle; white-space:nowrap;">
+                    {{ $cur }}&nbsp;{{ number_format($insuranceFee,2) }}
+                </td>
+            </tr>
+            @endif
+            @if($customsDuties)
+            <tr style="border-bottom:1pt solid #e8e8e8;">
+                <td style="padding:5pt 12pt; font-size:7.5pt; vertical-align:middle;">
+                    Customs &amp; Import Duties
+                    <span style="font-size:5.5pt; color:#999; display:block; margin-top:1pt;">EU import clearance &nbsp;&middot;&nbsp; Destination: {{ $shipment->receiver_country }} &nbsp;&middot;&nbsp; Payable before release</span>
+                </td>
+                <td style="width:100pt; padding:5pt 12pt; text-align:right; font-weight:bold; font-family:'Courier New',monospace; font-size:7.5pt; vertical-align:middle; white-space:nowrap;">
+                    {{ $cur }}&nbsp;{{ number_format($customsDuties,2) }}
+                </td>
+            </tr>
+            @endif
+            <tr>
+                <td style="background:#1a1a1a; color:#FFCC00; font-size:8pt; font-weight:bold; padding:7pt 12pt; letter-spacing:1pt; text-transform:uppercase; vertical-align:middle;">
+                    Total Amount Due
+                </td>
+                <td style="width:100pt; background:#1a1a1a; color:#FFCC00; font-size:10pt; font-weight:bold; padding:7pt 12pt; text-align:right; font-family:'Courier New',monospace; vertical-align:middle; letter-spacing:.5pt; white-space:nowrap;">
+                    {{ $cur }}&nbsp;{{ number_format($totalFeesDue,2) }}
+                </td>
+            </tr>
+        </table>
     </td>
 </tr>
 @endif
 
 {{-- ▌ FOOTER --}}
 <tr style="border-top:2pt solid #000; background:#fafafa;">
-    <td colspan="4" style="padding:7pt 12pt; vertical-align:middle;">
+    <td colspan="2" style="padding:7pt 12pt; vertical-align:middle;">
         <div style="font-size:6pt; color:#555; line-height:1.7;">
             <strong style="color:#000;">DHL Express (USA), Inc.</strong><br/>
             1200 S. Pine Island Road &nbsp;&middot;&nbsp; Plantation, FL 33324 &nbsp;&middot;&nbsp; USA<br/>
@@ -329,7 +346,7 @@ td { vertical-align:top; }
 
 {{-- ▌ DISCLAIMER --}}
 <tr style="border-top:1pt solid #ddd; background:#f5f5f5;">
-    <td colspan="5" style="padding:5pt 12pt;">
+    <td colspan="3" style="padding:5pt 12pt;">
         <div style="font-size:5pt; color:#888; line-height:1.6;">
             By tendering this shipment, shipper agrees to DHL's Conditions of Carriage (available at dhl.com) and Tariff as applicable.
             Liability is limited under the Warsaw Convention / Montreal Convention and DHL's Standard Terms. All shipments are subject to inspection
